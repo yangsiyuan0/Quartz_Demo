@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd ">
+     
+     <!-- 包扫描路径：service -->
+     <context:component-scan base-package="cn.yang.quartz" />
+
+     <!-- job：自定义 -->
+     <bean id="myJob"
+         class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+         <property name="jobClass" value="cn.yang.quartz.job.MyJob" />
+     </bean>
+
+     <!-- trigger：内置(设置触发时间属性)-->
+     <bean id="simpleTrigger"
+         class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+         <property name="jobDetail" ref="myJob" />
+         <!-- 3秒后第一次执行 -->
+         <property name="startDelay" value="1000" />
+         <!-- 5秒后重复执行 -->
+         <property name="repeatInterval" value="3000" />
+     </bean>
+
+     <!-- scheduler：内置(利用自定义工厂类jobFactory，Job类不能被Spring管理，会导致service无法注入)  -->
+     <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+         <property name="jobFactory" ref="jobFactory" />
+         <property name="triggers">
+             <list>
+                 <ref bean="simpleTrigger"/>
+             </list>
+         </property>
+     </bean>
+
+</beans>
